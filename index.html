@@ -1,0 +1,1048 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>🍜 AI Food Assistant — พร้อมพงษ์</title>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+Thai:wght@300;400;500;600;700&family=Nunito:wght@400;600;700;800;900&display=swap" rel="stylesheet">
+<style>
+:root {
+  --pink: #ffb5c8;
+  --pink-light: #fff0f4;
+  --pink-mid: #ffd6e3;
+  --lavender: #c9b8f5;
+  --lavender-light: #f3f0ff;
+  --mint: #b5e8d5;
+  --mint-light: #f0fdf7;
+  --peach: #ffd4b5;
+  --peach-light: #fff8f3;
+  --sky: #b5d8f7;
+  --sky-light: #f0f8ff;
+  --yellow: #ffe8a3;
+  --yellow-light: #fffcf0;
+  --bg: #fefcff;
+  --text: #3d3157;
+  --muted: #9b8fad;
+  --border: rgba(180,160,210,0.15);
+  --shadow: 0 4px 24px rgba(180,140,200,0.12);
+}
+* { margin:0; padding:0; box-sizing:border-box; }
+html { scroll-behavior:smooth; }
+body {
+  background: var(--bg);
+  color: var(--text);
+  font-family: 'Nunito', 'Noto Sans Thai', sans-serif;
+  font-size: 15px;
+  line-height: 1.7;
+  overflow-x: hidden;
+}
+
+/* floating blobs background */
+body::before {
+  content: '';
+  position: fixed;
+  top: -200px; right: -200px;
+  width: 600px; height: 600px;
+  background: radial-gradient(circle, rgba(255,181,200,0.18) 0%, transparent 65%);
+  pointer-events: none; z-index: 0;
+}
+body::after {
+  content: '';
+  position: fixed;
+  bottom: -100px; left: -100px;
+  width: 500px; height: 500px;
+  background: radial-gradient(circle, rgba(201,184,245,0.15) 0%, transparent 65%);
+  pointer-events: none; z-index: 0;
+}
+
+/* NAV */
+nav {
+  position: sticky; top: 0; z-index: 100;
+  background: rgba(254,252,255,0.85);
+  backdrop-filter: blur(12px);
+  border-bottom: 1px solid var(--border);
+  padding: 14px 40px;
+  display: flex; align-items: center; justify-content: space-between;
+}
+.nav-logo { font-weight: 800; font-size: 16px; color: var(--text); display:flex; align-items:center; gap:8px; }
+.nav-links { display:flex; gap:6px; flex-wrap:wrap; }
+.nav-link {
+  font-size: 12px; font-weight: 600;
+  padding: 5px 14px; border-radius: 20px;
+  background: var(--lavender-light);
+  color: #7c6abf;
+  text-decoration: none;
+  transition: all 0.2s;
+  border: 1px solid rgba(201,184,245,0.3);
+}
+.nav-link:hover { background: var(--lavender); color: #4a3a8a; }
+
+/* HERO */
+.hero {
+  position: relative; z-index: 1;
+  padding: 80px 48px 64px;
+  text-align: center;
+  overflow: hidden;
+}
+.hero-emoji-row {
+  font-size: 32px;
+  margin-bottom: 20px;
+  animation: float 3s ease-in-out infinite;
+  display: block;
+}
+.hero-tag {
+  display: inline-block;
+  background: linear-gradient(135deg, var(--pink-mid), var(--lavender));
+  color: #7040a0;
+  font-size: 12px; font-weight: 700;
+  padding: 6px 18px; border-radius: 20px;
+  margin-bottom: 24px;
+  letter-spacing: 1px;
+}
+.hero h1 {
+  font-size: clamp(36px, 6vw, 72px);
+  font-weight: 900;
+  line-height: 1.1;
+  margin-bottom: 20px;
+  background: linear-gradient(135deg, #e060a0, #9060e0, #40a0e0);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+.hero-sub {
+  font-size: 17px; color: var(--muted); max-width: 560px; margin: 0 auto 40px;
+  font-weight: 500; line-height: 1.6;
+}
+.hero-pills { display:flex; gap:10px; justify-content:center; flex-wrap:wrap; margin-bottom:48px; }
+.hero-pill {
+  background: white; border: 1.5px solid var(--border);
+  border-radius: 24px; padding: 8px 18px;
+  font-size: 13px; font-weight: 600; color: var(--text);
+  box-shadow: var(--shadow);
+  display: flex; align-items: center; gap:6px;
+}
+.hero-pill span { font-size: 16px; }
+.hero-stats {
+  display: flex; gap: 16px; justify-content: center; flex-wrap: wrap;
+}
+.hero-stat {
+  background: white;
+  border-radius: 20px; padding: 20px 28px;
+  text-align: center;
+  box-shadow: var(--shadow);
+  border: 1px solid var(--border);
+  min-width: 120px;
+}
+.hero-stat-num { font-size: 32px; font-weight: 900; line-height:1; }
+.hero-stat-label { font-size: 12px; color: var(--muted); font-weight: 600; margin-top: 4px; }
+
+/* SECTION COMMON */
+section { position:relative; z-index:1; padding: 72px 48px; }
+.section-chip {
+  display: inline-flex; align-items: center; gap: 6px;
+  padding: 5px 14px; border-radius: 20px;
+  font-size: 12px; font-weight: 700;
+  margin-bottom: 16px;
+}
+h2 {
+  font-size: clamp(26px, 4vw, 44px);
+  font-weight: 900;
+  margin-bottom: 8px;
+  line-height: 1.2;
+  color: var(--text);
+}
+.section-desc { font-size: 15px; color: var(--muted); margin-bottom: 40px; max-width: 560px; font-weight: 500; }
+
+/* WAVY DIVIDER */
+.wave { width:100%; overflow:hidden; line-height:0; }
+.wave svg { display:block; }
+
+/* OBJECTIVE */
+#objective { background: var(--lavender-light); }
+.obj-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 14px; }
+.obj-card {
+  background: white; border-radius: 20px; padding: 24px 20px;
+  box-shadow: var(--shadow); border: 1px solid var(--border);
+  transition: transform 0.25s, box-shadow 0.25s;
+  text-align: center;
+}
+.obj-card:hover { transform: translateY(-4px); box-shadow: 0 8px 32px rgba(180,140,200,0.2); }
+.obj-icon { font-size: 32px; display:block; margin-bottom: 12px; }
+.obj-card h3 { font-size: 14px; font-weight: 800; margin-bottom: 6px; color: var(--text); }
+.obj-card p { font-size: 12px; color: var(--muted); margin:0; }
+
+/* WORKFLOW */
+#workflow { background: var(--mint-light); }
+.wf-list { display:flex; flex-direction:column; gap:0; max-width:680px; }
+.wf-item {
+  display: flex; gap: 20px; align-items: flex-start;
+  padding: 20px 0;
+  border-bottom: 1.5px dashed rgba(181,232,213,0.6);
+}
+.wf-item:last-child { border-bottom: none; }
+.wf-bubble {
+  width: 44px; height: 44px; border-radius: 14px; flex-shrink: 0;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 18px; font-weight: 900;
+}
+.wf-body h3 { font-size: 15px; font-weight: 800; margin-bottom: 3px; }
+.wf-body p { font-size: 13px; color: var(--muted); margin:0 0 6px; }
+.wf-badge {
+  display:inline-block; font-size: 11px; font-weight: 700;
+  padding: 3px 10px; border-radius: 10px;
+}
+
+/* TOOLS */
+#tools { background: var(--sky-light); }
+.tools-row { display: flex; gap: 12px; flex-wrap: wrap; margin-bottom: 40px; }
+.tool-card {
+  background: white; border-radius: 18px; padding: 18px 22px;
+  display: flex; align-items: center; gap: 12px;
+  box-shadow: var(--shadow); border: 1px solid var(--border);
+  flex: 1; min-width: 160px;
+  transition: transform 0.2s;
+}
+.tool-card:hover { transform: scale(1.02); }
+.tool-emoji { font-size: 26px; }
+.tool-info { }
+.tool-name { font-size: 13px; font-weight: 800; color: var(--text); }
+.tool-role { font-size: 11px; color: var(--muted); font-weight: 600; }
+.source-list { display:flex; flex-direction:column; gap:10px; max-width:560px; }
+.source-item {
+  background: white; border-radius: 14px; padding: 14px 18px;
+  display: flex; justify-content: space-between; align-items: center;
+  box-shadow: 0 2px 12px rgba(180,140,200,0.08);
+  border: 1px solid var(--border);
+}
+.source-name { font-size: 13px; font-weight: 700; color: var(--text); }
+.source-desc { font-size: 11px; color: var(--muted); }
+.source-link {
+  font-size: 11px; font-weight: 700;
+  padding: 5px 12px; border-radius: 10px;
+  background: var(--sky-light); color: #4080c0;
+  text-decoration: none; border: 1px solid var(--sky);
+  white-space: nowrap;
+}
+
+/* SCORING */
+#scoring { background: var(--yellow-light); }
+.score-cards { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 12px; }
+.score-card {
+  background: white; border-radius: 18px; padding: 22px 18px;
+  box-shadow: var(--shadow); border: 1px solid var(--border);
+  text-align: center;
+}
+.score-emoji { font-size: 28px; display:block; margin-bottom: 8px; }
+.score-weight { font-size: 36px; font-weight: 900; line-height:1; margin-bottom:4px; }
+.score-name { font-size: 12px; color: var(--muted); font-weight: 600; }
+
+/* TOP 10 */
+#top10 { background: var(--peach-light); }
+.table-wrap { overflow-x:auto; border-radius: 20px; box-shadow: var(--shadow); }
+table { width: 100%; border-collapse: collapse; background: white; border-radius: 20px; overflow: hidden; }
+thead th {
+  padding: 14px 16px; font-size: 11px; font-weight: 800;
+  text-transform: uppercase; letter-spacing: 1px;
+  color: var(--muted); text-align: left;
+  background: #fff8f5; border-bottom: 2px solid var(--peach);
+  white-space: nowrap;
+}
+tbody tr { border-bottom: 1px solid #fff0e8; transition: background 0.15s; }
+tbody tr:hover { background: #fff8f5; }
+tbody tr:last-child { border-bottom: none; }
+tbody td { padding: 13px 16px; vertical-align: middle; font-size: 13px; }
+.rank-pill {
+  display: inline-flex; align-items: center; justify-content: center;
+  width: 30px; height: 30px; border-radius: 10px;
+  font-size: 12px; font-weight: 900;
+}
+.r1 { background: #fff0b0; color: #c08000; }
+.r2 { background: #f0f0f4; color: #8080a0; }
+.r3 { background: #ffe8e0; color: #c06040; }
+.rn { background: #f8f4ff; color: #a090c0; }
+.food-badge {
+  font-size: 11px; font-weight: 700;
+  padding: 3px 10px; border-radius: 8px;
+  background: var(--lavender-light); color: #7060b0;
+}
+.price-text { font-size: 12px; font-weight: 700; color: var(--text); }
+.rating-text { font-size: 12px; font-weight: 700; color: #e08020; }
+.bar-wrap { display:flex; align-items:center; gap:8px; }
+.bar-bg { flex:1; height: 6px; background: #f0e8f8; border-radius: 3px; min-width: 70px; }
+.bar-fill { height: 100%; border-radius: 3px; }
+.bar-num { font-size: 12px; font-weight: 900; min-width: 28px; }
+.restaurant-name { font-weight: 700; font-size: 13px; }
+
+/* TOP 3 */
+#top3 { background: var(--pink-light); }
+.top3-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(290px, 1fr)); gap: 20px; margin-bottom: 32px; }
+.top3-card {
+  background: white; border-radius: 24px; padding: 28px;
+  box-shadow: 0 6px 32px rgba(200,140,180,0.15);
+  border: 2px solid var(--border);
+  transition: transform 0.25s; position: relative; overflow: hidden;
+}
+.top3-card:hover { transform: translateY(-5px); }
+.top3-card.no1 { border-color: var(--pink); }
+.top3-card.no1::before {
+  content: ''; position: absolute; top:0; left:0; right:0; height: 4px;
+  background: linear-gradient(90deg, var(--pink), var(--lavender), var(--peach));
+}
+.top3-rank-badge {
+  display: inline-flex; align-items: center; gap: 6px;
+  padding: 5px 14px; border-radius: 20px;
+  font-size: 12px; font-weight: 800; margin-bottom: 14px;
+}
+.top3-name { font-size: 20px; font-weight: 900; margin-bottom: 4px; color: var(--text); }
+.top3-sub { font-size: 12px; color: var(--muted); font-weight: 600; margin-bottom: 18px; }
+.top3-score-box {
+  display: inline-flex; align-items: baseline; gap: 4px;
+  padding: 8px 16px; border-radius: 14px; margin-bottom: 16px;
+}
+.top3-score-num { font-size: 42px; font-weight: 900; line-height:1; }
+.top3-score-denom { font-size: 14px; font-weight: 700; color: var(--muted); }
+.tags-row { display:flex; flex-wrap:wrap; gap:6px; margin-bottom: 16px; }
+.tag-pill {
+  font-size: 11px; font-weight: 700; padding: 4px 10px; border-radius: 10px;
+}
+.t-green { background: var(--mint-light); color: #20906a; border: 1px solid var(--mint); }
+.t-warn { background: var(--peach-light); color: #c06020; border: 1px solid var(--peach); }
+.t-gray { background: #f4f2f8; color: var(--muted); border: 1px solid var(--border); }
+.top3-story {
+  font-size: 13px; color: #7a6880; line-height: 1.6;
+  padding: 14px; background: #fdf8ff; border-radius: 12px;
+  margin-bottom: 14px; font-weight: 500;
+}
+.tradeoffs { display:flex; flex-direction:column; gap:6px; }
+.tradeoff-row { display:flex; gap:8px; align-items:flex-start; font-size: 12px; font-weight: 600; }
+.t-plus { color: #20906a; flex-shrink:0; }
+.t-minus { color: #e05060; flex-shrink:0; }
+
+/* AI REC BOX */
+.ai-rec {
+  background: linear-gradient(135deg, #fff0f8, #f5f0ff);
+  border: 2px solid var(--pink-mid);
+  border-radius: 20px; padding: 24px 28px; max-width: 640px;
+}
+.ai-rec-label { font-size: 12px; font-weight: 800; color: #d040a0; margin-bottom: 10px; display:flex; align-items:center; gap:6px; }
+.ai-rec p { font-size: 14px; color: var(--text); font-weight: 500; margin:0; line-height:1.7; }
+
+/* COMPARISON */
+#comparison { background: var(--lavender-light); }
+.compare-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 14px; }
+.compare-card {
+  background: white; border-radius: 20px; padding: 22px;
+  box-shadow: var(--shadow); border: 1px solid var(--border);
+}
+.compare-name { font-size: 14px; font-weight: 800; margin-bottom: 14px; padding-bottom: 12px; border-bottom: 2px dashed var(--border); }
+.compare-row { display:flex; justify-content:space-between; align-items:center; padding: 7px 0; border-bottom: 1px solid #f5f0fa; font-size: 12px; }
+.compare-row:last-child { border-bottom: none; }
+.c-label { color: var(--muted); font-weight: 600; }
+.c-yes { color: #20906a; font-weight: 800; }
+.c-no { color: #e05060; font-weight: 800; }
+.c-maybe { color: #c07020; font-weight: 800; }
+
+/* INSIGHT */
+#insight { background: var(--mint-light); }
+.insight-cards { display:flex; flex-direction:column; gap:14px; max-width: 720px; }
+.insight-card {
+  background: white; border-radius: 18px; padding: 22px 24px;
+  display: flex; gap: 18px; align-items: flex-start;
+  box-shadow: 0 2px 16px rgba(140,200,180,0.12);
+  border: 1px solid rgba(181,232,213,0.4);
+}
+.insight-num {
+  width: 36px; height: 36px; border-radius: 12px; flex-shrink:0;
+  display:flex; align-items:center; justify-content:center;
+  font-size: 16px; font-weight: 900;
+}
+.insight-body h3 { font-size: 14px; font-weight: 800; margin-bottom: 5px; }
+.insight-body p { font-size: 13px; color: var(--muted); margin:0; line-height:1.6; font-weight: 500; }
+
+/* FOOTER */
+footer {
+  position: relative; z-index:1;
+  background: linear-gradient(135deg, #fff0f8, #f5f0ff, #f0f8ff);
+  padding: 56px 48px 48px;
+  text-align: center;
+  border-top: 2px solid var(--pink-mid);
+}
+.footer-logo { font-size: 28px; margin-bottom: 12px; }
+footer h3 { font-size: 20px; font-weight: 900; margin-bottom: 8px; }
+footer p { font-size: 13px; color: var(--muted); font-weight: 500; margin-bottom: 4px; }
+.footer-links { display:flex; gap:10px; justify-content:center; margin-top: 24px; flex-wrap:wrap; }
+.footer-link {
+  padding: 8px 18px; border-radius: 14px; font-size: 12px; font-weight: 700;
+  text-decoration: none; border: 1.5px solid var(--border);
+  background: white; color: var(--text);
+  transition: all 0.2s; box-shadow: 0 2px 8px rgba(180,140,200,0.1);
+}
+.footer-link:hover { background: var(--lavender-light); border-color: var(--lavender); }
+
+@keyframes float {
+  0%,100% { transform: translateY(0); }
+  50% { transform: translateY(-8px); }
+}
+@keyframes fadeUp {
+  from { opacity:0; transform: translateY(20px); }
+  to { opacity:1; transform: translateY(0); }
+}
+.fade-in { animation: fadeUp 0.5s ease forwards; }
+
+@media(max-width:640px) {
+  nav { padding: 12px 20px; }
+  .nav-links { display: none; }
+  .hero, section, footer { padding: 52px 22px; }
+}
+
+/* SEARCH */
+#search { background: var(--sky-light); }
+.search-box {
+  display: flex; gap: 10px; max-width: 600px; margin-bottom: 28px;
+}
+.search-input {
+  flex: 1; padding: 14px 20px; border-radius: 16px;
+  border: 2px solid var(--border); font-size: 14px; font-family: 'Nunito','Noto Sans Thai',sans-serif;
+  background: white; color: var(--text); outline: none;
+  box-shadow: var(--shadow); transition: border-color 0.2s;
+}
+.search-input:focus { border-color: var(--lavender); }
+.search-btn {
+  padding: 14px 22px; border-radius: 16px; border: none;
+  background: linear-gradient(135deg, var(--lavender), var(--sky));
+  color: #5040a0; font-size: 14px; font-weight: 800; cursor: pointer;
+  box-shadow: var(--shadow); transition: opacity 0.2s; font-family: 'Nunito','Noto Sans Thai',sans-serif;
+}
+.search-btn:hover { opacity: 0.85; }
+.filter-row { display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 24px; }
+.filter-pill {
+  padding: 6px 14px; border-radius: 20px; font-size: 12px; font-weight: 700;
+  cursor: pointer; border: 1.5px solid var(--border); background: white;
+  color: var(--muted); transition: all 0.2s; font-family: 'Nunito','Noto Sans Thai',sans-serif;
+}
+.filter-pill:hover, .filter-pill.active { background: var(--lavender-light); color: #7050c0; border-color: var(--lavender); }
+.search-results { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 14px; }
+.result-card {
+  background: white; border-radius: 16px; padding: 18px 20px;
+  box-shadow: var(--shadow); border: 1px solid var(--border);
+  transition: transform 0.2s;
+}
+.result-card:hover { transform: translateY(-3px); }
+.result-card-name { font-size: 14px; font-weight: 800; margin-bottom: 6px; color: var(--text); }
+.result-card-tags { display: flex; flex-wrap: wrap; gap: 5px; margin-bottom: 10px; }
+.result-card-row { display: flex; justify-content: space-between; font-size: 12px; color: var(--muted); padding: 3px 0; }
+.result-card-row span:last-child { font-weight: 700; color: var(--text); }
+.no-results { text-align: center; color: var(--muted); font-size: 14px; padding: 40px; }
+
+/* AI CHAT */
+#ask { background: var(--pink-light); }
+.chat-wrap { max-width: 680px; }
+.chat-messages {
+  background: white; border-radius: 20px; padding: 20px;
+  min-height: 200px; max-height: 400px; overflow-y: auto;
+  box-shadow: var(--shadow); border: 1px solid var(--border);
+  margin-bottom: 14px; display: flex; flex-direction: column; gap: 12px;
+}
+.msg { display: flex; gap: 10px; align-items: flex-start; }
+.msg-bubble {
+  padding: 10px 16px; border-radius: 14px; font-size: 13px;
+  line-height: 1.6; max-width: 85%; font-weight: 500;
+}
+.msg.user { flex-direction: row-reverse; }
+.msg.user .msg-bubble { background: linear-gradient(135deg, var(--lavender), var(--pink-mid)); color: #4a3080; border-radius: 14px 4px 14px 14px; }
+.msg.ai .msg-bubble { background: #f8f4ff; color: var(--text); border-radius: 4px 14px 14px 14px; border: 1px solid var(--border); }
+.msg-avatar { width: 32px; height: 32px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 16px; flex-shrink: 0; background: var(--lavender-light); }
+.chat-input-row { display: flex; gap: 10px; }
+.chat-input {
+  flex: 1; padding: 13px 18px; border-radius: 14px;
+  border: 2px solid var(--border); font-size: 13px; font-family: 'Nunito','Noto Sans Thai',sans-serif;
+  background: white; color: var(--text); outline: none;
+  box-shadow: 0 2px 8px rgba(180,140,200,0.08); transition: border-color 0.2s;
+}
+.chat-input:focus { border-color: var(--pink); }
+.chat-send {
+  padding: 13px 20px; border-radius: 14px; border: none;
+  background: linear-gradient(135deg, #ffb5c8, #c9b8f5);
+  color: #6030a0; font-size: 13px; font-weight: 800; cursor: pointer;
+  font-family: 'Nunito','Noto Sans Thai',sans-serif; transition: opacity 0.2s;
+}
+.chat-send:hover { opacity: 0.85; }
+.chat-send:disabled { opacity: 0.5; cursor: not-allowed; }
+.quick-qs { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 14px; }
+.quick-q {
+  font-size: 12px; font-weight: 700; padding: 5px 12px; border-radius: 20px;
+  background: white; border: 1.5px solid var(--border); color: var(--muted);
+  cursor: pointer; font-family: 'Nunito','Noto Sans Thai',sans-serif; transition: all 0.2s;
+}
+.quick-q:hover { background: var(--pink-light); border-color: var(--pink); color: #d040a0; }
+.typing { display: flex; gap: 4px; align-items: center; padding: 8px 0; }
+.typing span { width: 6px; height: 6px; border-radius: 50%; background: var(--lavender); animation: bounce 1.2s infinite; }
+.typing span:nth-child(2) { animation-delay: 0.2s; }
+.typing span:nth-child(3) { animation-delay: 0.4s; }
+@keyframes bounce { 0%,80%,100% { transform: translateY(0); } 40% { transform: translateY(-6px); } }
+</style>
+</head>
+<body>
+
+<!-- NAV -->
+<nav>
+  <div class="nav-logo">🍜 AI Food Assistant</div>
+  <div class="nav-links">
+    <a href="#objective" class="nav-link">🎯 เป้าหมาย</a>
+    <a href="#workflow" class="nav-link">⚙️ Workflow</a>
+    <a href="#top10" class="nav-link">📊 Top 10</a>
+    <a href="#top3" class="nav-link">🏆 Top 3</a>
+    <a href="#search" class="nav-link">🔍 ค้นหา</a>
+    <a href="#ask" class="nav-link">🤖 ถาม AI</a>
+    <a href="#insight" class="nav-link">💡 Insight</a>
+  </div>
+</nav>
+
+<!-- HERO -->
+<div class="hero">
+  <span class="hero-emoji-row">🍜 🥢 🍱 🥗 🍣</span>
+  <div class="hero-tag">✨ AI Workflow Project · พร้อมพงษ์ · 2569</div>
+  <h1>ให้ AI ช่วยเลือก<br>ร้านอาหารให้ทีม</h1>
+  <p class="hero-sub">เบื่อแล้วที่ต้องถามว่า "กินอะไรดี?" เราใช้ข้อมูลจริง 200 ร้าน วิเคราะห์ด้วย AI หาคำตอบให้ทีม 8–12 คน 🎉</p>
+  <div class="hero-pills">
+    <div class="hero-pill"><span>📍</span>พร้อมพงษ์ / สุขุมวิท</div>
+    <div class="hero-pill"><span>👥</span>8–12 คน</div>
+    <div class="hero-pill"><span>💰</span>300–500 บาท/คน</div>
+    <div class="hero-pill"><span>💼</span>นั่งคุยงานได้</div>
+    <div class="hero-pill"><span>🚇</span>ใกล้ BTS</div>
+  </div>
+  <div class="hero-stats">
+    <div class="hero-stat">
+      <div class="hero-stat-num" style="color:#e060a0;">200</div>
+      <div class="hero-stat-label">ร้านที่ Scrape มา</div>
+    </div>
+    <div class="hero-stat">
+      <div class="hero-stat-num" style="color:#9060e0;">37</div>
+      <div class="hero-stat-label">ร้านที่ผ่านกรอง</div>
+    </div>
+    <div class="hero-stat">
+      <div class="hero-stat-num" style="color:#40a0e0;">6</div>
+      <div class="hero-stat-label">หมวดคะแนน</div>
+    </div>
+    <div class="hero-stat">
+      <div class="hero-stat-num" style="color:#20b080;">95</div>
+      <div class="hero-stat-label">คะแนนสูงสุด</div>
+    </div>
+  </div>
+</div>
+
+<!-- OBJECTIVE -->
+<section id="objective">
+  <div class="section-chip" style="background:var(--lavender-light);color:#7050c0;">🎯 01 — เป้าหมาย</div>
+  <h2>ทำไมถึงต้องทำ<br>โปรเจกต์นี้?</h2>
+  <p class="section-desc">หยุดเสียเวลาถามว่า "กินอะไรดี" ใช้ข้อมูลจริงตัดสินใจแทนความรู้สึก 🙌</p>
+  <div class="obj-grid">
+    <div class="obj-card"><span class="obj-icon">👥</span><h3>รองรับกลุ่มใหญ่</h3><p>จัดโต๊ะ 8–12 คนได้จริง ไม่ใช่แค่พูดว่ารองรับ</p></div>
+    <div class="obj-card"><span class="obj-icon">💬</span><h3>บรรยากาศคุยงาน</h3><p>ไม่เสียงดัง มีพื้นที่นั่งสบาย นั่งได้นาน</p></div>
+    <div class="obj-card"><span class="obj-icon">🚇</span><h3>เดินทางง่าย</h3><p>ใกล้ BTS พร้อมพงษ์ หรือมีที่จอดรถ</p></div>
+    <div class="obj-card"><span class="obj-icon">💰</span><h3>งบ 300–500 บาท</h3><p>ต่อหัว รวมอาหารหลัก ไม่รวมเครื่องดื่ม</p></div>
+    <div class="obj-card"><span class="obj-icon">🔍</span><h3>ตรวจสอบได้จริง</h3><p>มีแหล่งอ้างอิง ข้อมูลจริง ไม่ใช่ AI เดาเอง</p></div>
+    <div class="obj-card"><span class="obj-icon">✨</span><h3>บรรยากาศดีพิเศษ</h3><p>ทำให้มื้ออาหารรู้สึก special น่าจดจำ</p></div>
+  </div>
+</section>
+
+<!-- WORKFLOW -->
+<section id="workflow">
+  <div class="section-chip" style="background:var(--mint-light);color:#20806a;">⚙️ 02 — Workflow</div>
+  <h2>เราทำยังไง?<br>ขั้นตอนทั้งหมด</h2>
+  <p class="section-desc">จาก 0 ถึงหน้าเว็บนี้ ใช้เวลา 2–3 วัน ผ่านกระบวนการนี้ทั้งหมด 👇</p>
+  <div class="wf-list">
+    <div class="wf-item">
+      <div class="wf-bubble" style="background:var(--pink-light);color:#d040a0;">🎯</div>
+      <div class="wf-body"><h3>Problem Framing</h3><p>ตั้งโจทย์ เลือกย่านพร้อมพงษ์ กำหนดเกณฑ์การตัดสินใจ</p></div>
+    </div>
+    <div class="wf-item">
+      <div class="wf-bubble" style="background:var(--sky-light);color:#2070c0;">🕷️</div>
+      <div class="wf-body"><h3>Data Collection</h3><p>Scrape 200 ร้านจาก Google Maps ด้วย Apify</p><span class="wf-badge" style="background:var(--sky-light);color:#2070c0;">Apify Google Maps Scraper</span></div>
+    </div>
+    <div class="wf-item">
+      <div class="wf-bubble" style="background:var(--mint-light);color:#20806a;">📊</div>
+      <div class="wf-body"><h3>Data Storage</h3><p>เก็บข้อมูลลง Google Sheets แบ่ง Raw / Clean / Scoring ชัด</p><span class="wf-badge" style="background:var(--mint-light);color:#20806a;">Google Sheets</span></div>
+    </div>
+    <div class="wf-item">
+      <div class="wf-bubble" style="background:var(--yellow-light);color:#c08000;">🤖</div>
+      <div class="wf-body"><h3>Data Cleaning + AI Analysis</h3><p>ใช้ Claude AI กรองร้าน normalize ข้อมูล เหลือ 37 ร้านที่ผ่านเกณฑ์ จากนั้นวิเคราะห์ ranking และ insight</p><span class="wf-badge" style="background:var(--yellow-light);color:#c08000;">Claude AI</span></div>
+    </div>
+    <div class="wf-item">
+      <div class="wf-bubble" style="background:var(--lavender-light);color:#7050c0;">⭐</div>
+      <div class="wf-body"><h3>Scoring Model</h3><p>ให้คะแนน 37 ร้านตาม 6 หมวด รวม 100 คะแนน</p><span class="wf-badge" style="background:var(--lavender-light);color:#7050c0;">Claude AI + Sheets</span></div>
+    </div>
+    <div class="wf-item">
+      <div class="wf-bubble" style="background:var(--peach-light);color:#c06020;">⚡</div>
+      <div class="wf-body"><h3>Automation</h3><p>ต่อ workflow อัตโนมัติ Google Sheets → ส่ง Email สรุป Top 3</p><span class="wf-badge" style="background:var(--peach-light);color:#c06020;">Make.com</span></div>
+    </div>
+    <div class="wf-item">
+      <div class="wf-bubble" style="background:var(--pink-light);color:#d040a0;">🌸</div>
+      <div class="wf-body"><h3>HTML Final Output</h3><p>สร้างหน้าเว็บสรุปผลที่เปิดอ่านได้จริง พร้อม Top 10, Top 3, Comparison</p><span class="wf-badge" style="background:var(--pink-light);color:#d040a0;">HTML / CSS / JS</span></div>
+    </div>
+  </div>
+</section>
+
+<!-- TOOLS -->
+<section id="tools">
+  <div class="section-chip" style="background:var(--sky-light);color:#2070c0;">🔧 03 — Tools & Sources</div>
+  <h2>เครื่องมือที่ใช้</h2>
+  <p class="section-desc">ทุก tool ที่ใช้ล้วนฟรี (หรือมี free plan) 💪</p>
+  <div class="tools-row">
+    <div class="tool-card"><div class="tool-emoji">🕷️</div><div class="tool-info"><div class="tool-name">Apify</div><div class="tool-role">Data Collection</div></div></div>
+    <div class="tool-card"><div class="tool-emoji">📊</div><div class="tool-info"><div class="tool-name">Google Sheets</div><div class="tool-role">Data Storage</div></div></div>
+    <div class="tool-card"><div class="tool-emoji">🤖</div><div class="tool-info"><div class="tool-name">Claude AI</div><div class="tool-role">AI Analysis</div></div></div>
+    <div class="tool-card"><div class="tool-emoji">⚡</div><div class="tool-info"><div class="tool-name">Make.com</div><div class="tool-role">Automation</div></div></div>
+    <div class="tool-card"><div class="tool-emoji">🌐</div><div class="tool-info"><div class="tool-name">HTML/CSS/JS</div><div class="tool-role">Final Output</div></div></div>
+  </div>
+  <h3 style="font-size:15px;font-weight:800;margin-bottom:14px;color:var(--text);">📌 แหล่งข้อมูล</h3>
+  <div class="source-list">
+    <div class="source-item">
+      <div><div class="source-name">🗺️ Google Maps via Apify</div><div class="source-desc">ข้อมูลหลัก 200 ร้าน · rating · reviews · ที่อยู่ · หมวดหมู่</div></div>
+      <a href="https://apify.com/compass/crawler-google-places" target="_blank" class="source-link">ดูแหล่งข้อมูล ↗</a>
+    </div>
+    <div class="source-item">
+      <div><div class="source-name">🔍 Google Maps (manual verify)</div><div class="source-desc">ตรวจสอบข้อมูลเพิ่มเติม · ราคา · เวลาเปิด-ปิด</div></div>
+      <a href="https://maps.google.com" target="_blank" class="source-link">ดูแหล่งข้อมูล ↗</a>
+    </div>
+    <div class="source-item">
+      <div><div class="source-name">📋 Google Sheets Dataset</div><div class="source-desc">Raw Data, Clean Data, Scoring ครบทุก sheet</div></div>
+      <a href="https://docs.google.com/spreadsheets/d/1c50h-9X6zPyYItt_wGNtJKzegCQcynBFgoM7dKwDZJQ" target="_blank" class="source-link">เปิด Sheets ↗</a>
+    </div>
+  </div>
+</section>
+
+<!-- SCORING -->
+<section id="scoring">
+  <div class="section-chip" style="background:var(--yellow-light);color:#c08000;">⭐ 04 — Scoring Model</div>
+  <h2>วิธีให้คะแนน<br>100 คะแนน</h2>
+  <p class="section-desc">น้ำหนักคะแนนออกแบบตามความสำคัญของโจทย์จริงๆ ไม่ใช่แค่คะแนน Google ✨</p>
+  <div class="score-cards">
+    <div class="score-card"><span class="score-emoji">⭐</span><div class="score-weight" style="color:#e08020;">25</div><div class="score-name">Rating & Review Quality</div></div>
+    <div class="score-card"><span class="score-emoji">👥</span><div class="score-weight" style="color:#9060e0;">20</div><div class="score-name">Group Suitability</div></div>
+    <div class="score-card"><span class="score-emoji">💰</span><div class="score-weight" style="color:#20906a;">15</div><div class="score-name">Price Suitability</div></div>
+    <div class="score-card"><span class="score-emoji">🚇</span><div class="score-weight" style="color:#2070c0;">15</div><div class="score-name">Travel Convenience</div></div>
+    <div class="score-card"><span class="score-emoji">📋</span><div class="score-weight" style="color:#c06020;">15</div><div class="score-name">Data Completeness</div></div>
+    <div class="score-card"><span class="score-emoji">✨</span><div class="score-weight" style="color:#d040a0;">10</div><div class="score-name">Uniqueness / Experience</div></div>
+  </div>
+</section>
+
+<!-- TOP 10 -->
+<section id="top10">
+  <div class="section-chip" style="background:var(--peach-light);color:#c06020;">📊 05 — Top 10 Ranking</div>
+  <h2>10 ร้านยอดเยี่ยม<br>จากการวิเคราะห์ 🏆</h2>
+  <p class="section-desc">จาก 37 ร้านที่ผ่านการกรอง นี่คือ 10 อันดับที่ดีที่สุด</p>
+  <div class="table-wrap">
+    <table>
+      <thead>
+        <tr>
+          <th>#</th><th>ร้านอาหาร</th><th>ประเภท</th>
+          <th>ราคา/คน</th><th>Rating</th><th>คะแนนรวม</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr><td><span class="rank-pill r1">1</span></td><td class="restaurant-name">Bangkok Heightz Rooftop</td><td><span class="food-badge">ไทย</span></td><td class="price-text">฿500–900</td><td class="rating-text">4.8 ★</td><td><div class="bar-wrap"><div class="bar-bg"><div class="bar-fill" style="width:95%;background:linear-gradient(90deg,#ffb5c8,#c9b8f5);"></div></div><span class="bar-num" style="color:#e060a0;">95</span></div></td></tr>
+        <tr><td><span class="rank-pill r1">1</span></td><td class="restaurant-name">Napha Emsphere</td><td><span class="food-badge">ไทย</span></td><td class="price-text">฿500–900</td><td class="rating-text">4.8 ★</td><td><div class="bar-wrap"><div class="bar-bg"><div class="bar-fill" style="width:95%;background:linear-gradient(90deg,#ffb5c8,#c9b8f5);"></div></div><span class="bar-num" style="color:#e060a0;">95</span></div></td></tr>
+        <tr><td><span class="rank-pill r1">1</span></td><td class="restaurant-name">Terra Thonglor</td><td><span class="food-badge">ญี่ปุ่น</span></td><td class="price-text">฿500–900</td><td class="rating-text">4.8 ★</td><td><div class="bar-wrap"><div class="bar-bg"><div class="bar-fill" style="width:95%;background:linear-gradient(90deg,#ffb5c8,#c9b8f5);"></div></div><span class="bar-num" style="color:#e060a0;">95</span></div></td></tr>
+        <tr><td><span class="rank-pill r2">4</span></td><td class="restaurant-name">Supanniga Eating Room</td><td><span class="food-badge">ไทย</span></td><td class="price-text">฿300–500</td><td class="rating-text">4.4 ★</td><td><div class="bar-wrap"><div class="bar-bg"><div class="bar-fill" style="width:90%;background:linear-gradient(90deg,#b5e8d5,#b5d8f7);"></div></div><span class="bar-num" style="color:#20906a;">90</span></div></td></tr>
+        <tr><td><span class="rank-pill rn">5</span></td><td>BORNGA THAILAND</td><td><span class="food-badge">เกาหลี</span></td><td class="price-text">฿400–700</td><td class="rating-text">4.8 ★</td><td><div class="bar-wrap"><div class="bar-bg"><div class="bar-fill" style="width:89%;background:#c9b8f5;"></div></div><span class="bar-num" style="color:#9060e0;">89</span></div></td></tr>
+        <tr><td><span class="rank-pill rn">5</span></td><td>KURATHAI SHOKUDO</td><td><span class="food-badge">ญี่ปุ่น</span></td><td class="price-text">฿300–600</td><td class="rating-text">4.8 ★</td><td><div class="bar-wrap"><div class="bar-bg"><div class="bar-fill" style="width:89%;background:#c9b8f5;"></div></div><span class="bar-num" style="color:#9060e0;">89</span></div></td></tr>
+        <tr><td><span class="rank-pill rn">5</span></td><td>ครัวเจียงใหม่</td><td><span class="food-badge">ไทยเหนือ</span></td><td class="price-text">฿200–400</td><td class="rating-text">4.8 ★</td><td><div class="bar-wrap"><div class="bar-bg"><div class="bar-fill" style="width:89%;background:#c9b8f5;"></div></div><span class="bar-num" style="color:#9060e0;">89</span></div></td></tr>
+        <tr><td><span class="rank-pill rn">5</span></td><td>SUSHI SEKI EmQuartier</td><td><span class="food-badge">ญี่ปุ่น</span></td><td class="price-text">฿500–1000</td><td class="rating-text">4.8 ★</td><td><div class="bar-wrap"><div class="bar-bg"><div class="bar-fill" style="width:89%;background:#c9b8f5;"></div></div><span class="bar-num" style="color:#9060e0;">89</span></div></td></tr>
+        <tr><td><span class="rank-pill rn">9</span></td><td>Jirakaan Restaurant</td><td><span class="food-badge">ไทย</span></td><td class="price-text">฿400–700</td><td class="rating-text">4.8 ★</td><td><div class="bar-wrap"><div class="bar-bg"><div class="bar-fill" style="width:85%;background:#ffd4b5;"></div></div><span class="bar-num" style="color:#c06020;">85</span></div></td></tr>
+        <tr><td><span class="rank-pill rn">9</span></td><td>CALM Bangkok</td><td><span class="food-badge">ฟิวชัน</span></td><td class="price-text">฿500–900</td><td class="rating-text">4.8 ★</td><td><div class="bar-wrap"><div class="bar-bg"><div class="bar-fill" style="width:85%;background:#ffd4b5;"></div></div><span class="bar-num" style="color:#c06020;">85</span></div></td></tr>
+      </tbody>
+    </table>
+  </div>
+</section>
+
+<!-- TOP 3 -->
+<section id="top3">
+  <div class="section-chip" style="background:var(--pink-light);color:#d040a0;">🏆 06 — Top 3 Picks</div>
+  <h2>3 ร้านแนะนำ<br>สำหรับทีมคุณ 🎉</h2>
+  <p class="section-desc">เลือกแบบมีข้อมูล ไม่ใช่แค่ตามใจชอบ พร้อม pros & cons ทุกร้าน</p>
+  <div class="top3-grid">
+    <div class="top3-card no1">
+      <div class="top3-rank-badge" style="background:var(--yellow-light);color:#c08000;">🥇 อันดับ 1</div>
+      <div class="top3-name">Bangkok Heightz Rooftop</div>
+      <div class="top3-sub">🍽️ ไทย · ชั้น 39 · ถ.สุขุมวิท · BTS ใกล้มาก</div>
+      <div class="top3-score-box" style="background:var(--yellow-light);">
+        <div class="top3-score-num" style="color:#c08000;">95</div>
+        <div class="top3-score-denom">/ 100</div>
+      </div>
+      <div class="tags-row">
+        <span class="tag-pill t-green">✓ รองรับกลุ่ม</span>
+        <span class="tag-pill t-green">✓ คุยงานได้</span>
+        <span class="tag-pill t-green">✓ ใกล้ BTS</span>
+        <span class="tag-pill t-gray">4.8 ★ · 2,909 รีวิว</span>
+      </div>
+      <div class="top3-story">✨ Rooftop ชั้น 39 ให้บรรยากาศที่โดดเด่นที่สุดในลิสต์ เหมาะทีมที่ต้องการ wow factor รีวิวกว่า 2,900 ยืนยันคุณภาพ</div>
+      <div class="tradeoffs">
+        <div class="tradeoff-row"><span class="t-plus">✓</span><span>วิวสวย บรรยากาศ wow ทีมจำได้นาน</span></div>
+        <div class="tradeoff-row"><span class="t-plus">✓</span><span>รีวิวมากที่สุด น่าเชื่อถือ</span></div>
+        <div class="tradeoff-row"><span class="t-minus">!</span><span>ราคาจริงอาจสูงถึง 700–800 บาท/คน รวมเครื่องดื่ม</span></div>
+        <div class="tradeoff-row"><span class="t-minus">!</span><span>ควรจองล่วงหน้า ขอโต๊ะในร่มสำรอง</span></div>
+      </div>
+    </div>
+
+    <div class="top3-card">
+      <div class="top3-rank-badge" style="background:#f4f0ff;color:#8060c0;">🥈 อันดับ 2</div>
+      <div class="top3-name">Napha Emsphere</div>
+      <div class="top3-sub">🍽️ ไทย · Emsphere GM Floor · BTS โดยตรง</div>
+      <div class="top3-score-box" style="background:var(--lavender-light);">
+        <div class="top3-score-num" style="color:#8060c0;">95</div>
+        <div class="top3-score-denom">/ 100</div>
+      </div>
+      <div class="tags-row">
+        <span class="tag-pill t-green">✓ รองรับกลุ่ม</span>
+        <span class="tag-pill t-green">✓ BTS โดยตรง</span>
+        <span class="tag-pill t-green">✓ จอดรถง่าย</span>
+        <span class="tag-pill t-gray">4.8 ★ · 1,029 รีวิว</span>
+      </div>
+      <div class="top3-story">🛍️ อยู่ใน Emsphere สะดวกที่สุด เดิน BTS เข้าได้เลย เหมาะทีมที่มาหลายทิศ ยกเลิก/เลื่อนได้ง่าย</div>
+      <div class="tradeoffs">
+        <div class="tradeoff-row"><span class="t-plus">✓</span><span>Logistics ดีที่สุด ไม่มีใครแก้ตัวว่าหาไม่เจอ</span></div>
+        <div class="tradeoff-row"><span class="t-plus">✓</span><span>อาหารไทย ทุกคนในทีมกินได้</span></div>
+        <div class="tradeoff-row"><span class="t-minus">!</span><span>อยู่ใน mall บรรยากาศ "พิเศษ" น้อยกว่า Heightz</span></div>
+        <div class="tradeoff-row"><span class="t-minus">!</span><span>Peak hour อาจมีเสียงรบกวน</span></div>
+      </div>
+    </div>
+
+    <div class="top3-card">
+      <div class="top3-rank-badge" style="background:var(--peach-light);color:#c06020;">🥉 อันดับ 3</div>
+      <div class="top3-name">Terra Thonglor</div>
+      <div class="top3-sub">🍱 ญี่ปุ่น / อิซาคายะ · ถนนเอกมัย · BTS ต่อนิด</div>
+      <div class="top3-score-box" style="background:var(--peach-light);">
+        <div class="top3-score-num" style="color:#c06020;">95</div>
+        <div class="top3-score-denom">/ 100</div>
+      </div>
+      <div class="tags-row">
+        <span class="tag-pill t-green">✓ รองรับกลุ่ม</span>
+        <span class="tag-pill t-green">✓ บรรยากาศดี</span>
+        <span class="tag-pill t-warn">~ BTS ต่อนิด</span>
+        <span class="tag-pill t-gray">4.8 ★ · 1,103 รีวิว</span>
+      </div>
+      <div class="top3-story">🍶 อิซาคายะสไตล์ญี่ปุ่น ให้บรรยากาศผ่อนคลายที่หลายทีมชอบมากกว่า formal dining เหมาะคุยงานแบบ informal</div>
+      <div class="tradeoffs">
+        <div class="tradeoff-row"><span class="t-plus">✓</span><span>บรรยากาศผ่อนคลาย ทีม comfortable กว่า</span></div>
+        <div class="tradeoff-row"><span class="t-plus">✓</span><span>Concept ต่างออกไป น่าจดจำ</span></div>
+        <div class="tradeoff-row"><span class="t-minus">!</span><span>ต้องนั่ง Grab ต่อจาก BTS เล็กน้อย</span></div>
+        <div class="tradeoff-row"><span class="t-minus">!</span><span>อาจไม่เหมาะถ้ามีลูกค้าหรือผู้บริหารมาด้วย</span></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="ai-rec">
+    <div class="ai-rec-label">🤖 AI แนะนำเพิ่มเติม</div>
+    <p>ถ้างบ <strong>hard cap ที่ 300–500 บาท/คนจริงๆ</strong> แนะนำ <strong>Supanniga Eating Room</strong> (90 คะแนน) — ร้านเดียวที่ราคาตรงงบพอดี บรรยากาศดี คุยงานได้ ใกล้ BTS ครบทุกข้อ ยืนยันจาก 1,729 รีวิว 💚</p>
+  </div>
+</section>
+
+<!-- COMPARISON -->
+<section id="comparison">
+  <div class="section-chip" style="background:var(--lavender-light);color:#7050c0;">🔄 07 — เปรียบเทียบ</div>
+  <h2>จุดเด่น vs ข้อควรระวัง<br>เทียบกันตรงๆ 👀</h2>
+  <p class="section-desc">ดูแบบ side-by-side ก่อนตัดสินใจ</p>
+  <div class="compare-grid">
+    <div class="compare-card">
+      <div class="compare-name">🏙️ Bangkok Heightz Rooftop</div>
+      <div class="compare-row"><span class="c-label">บรรยากาศ</span><span class="c-yes">★★★★★</span></div>
+      <div class="compare-row"><span class="c-label">ราคาในงบ</span><span class="c-maybe">เกินงบนิดหน่อย</span></div>
+      <div class="compare-row"><span class="c-label">รองรับกลุ่ม</span><span class="c-yes">ใช่ ✓</span></div>
+      <div class="compare-row"><span class="c-label">คุยงานได้</span><span class="c-yes">ใช่ ✓</span></div>
+      <div class="compare-row"><span class="c-label">ใกล้ BTS</span><span class="c-yes">ใช่ ✓</span></div>
+      <div class="compare-row"><span class="c-label">ต้องจอง</span><span class="c-maybe">แนะนำ</span></div>
+    </div>
+    <div class="compare-card">
+      <div class="compare-name">🛍️ Napha Emsphere</div>
+      <div class="compare-row"><span class="c-label">บรรยากาศ</span><span class="c-yes">★★★★☆</span></div>
+      <div class="compare-row"><span class="c-label">ราคาในงบ</span><span class="c-maybe">เกินงบนิดหน่อย</span></div>
+      <div class="compare-row"><span class="c-label">รองรับกลุ่ม</span><span class="c-yes">ใช่ ✓</span></div>
+      <div class="compare-row"><span class="c-label">คุยงานได้</span><span class="c-yes">ใช่ ✓</span></div>
+      <div class="compare-row"><span class="c-label">ใกล้ BTS</span><span class="c-yes">โดยตรง ✓</span></div>
+      <div class="compare-row"><span class="c-label">ต้องจอง</span><span class="c-yes">ไม่จำเป็น</span></div>
+    </div>
+    <div class="compare-card">
+      <div class="compare-name">🍶 Terra Thonglor</div>
+      <div class="compare-row"><span class="c-label">บรรยากาศ</span><span class="c-yes">★★★★☆</span></div>
+      <div class="compare-row"><span class="c-label">ราคาในงบ</span><span class="c-maybe">เกินงบนิดหน่อย</span></div>
+      <div class="compare-row"><span class="c-label">รองรับกลุ่ม</span><span class="c-yes">ใช่ ✓</span></div>
+      <div class="compare-row"><span class="c-label">คุยงานได้</span><span class="c-yes">Informal ✓</span></div>
+      <div class="compare-row"><span class="c-label">ใกล้ BTS</span><span class="c-maybe">Grab ต่อ</span></div>
+      <div class="compare-row"><span class="c-label">ต้องจอง</span><span class="c-maybe">แนะนำ</span></div>
+    </div>
+    <div class="compare-card">
+      <div class="compare-name">🌟 Supanniga Eating Room</div>
+      <div class="compare-row"><span class="c-label">บรรยากาศ</span><span class="c-yes">★★★★☆</span></div>
+      <div class="compare-row"><span class="c-label">ราคาในงบ</span><span class="c-yes">ตรงงบ ✓✓</span></div>
+      <div class="compare-row"><span class="c-label">รองรับกลุ่ม</span><span class="c-yes">ใช่ ✓</span></div>
+      <div class="compare-row"><span class="c-label">คุยงานได้</span><span class="c-yes">ใช่ ✓</span></div>
+      <div class="compare-row"><span class="c-label">ใกล้ BTS</span><span class="c-yes">ใช่ ✓</span></div>
+      <div class="compare-row"><span class="c-label">ต้องจอง</span><span class="c-maybe">แนะนำ</span></div>
+    </div>
+  </div>
+</section>
+
+<!-- SEARCH -->
+<section id="search">
+  <div class="section-chip" style="background:var(--sky-light);color:#2070c0;">🔍 ค้นหาร้าน</div>
+  <h2>ค้นหาร้านอาหาร<br>ที่ใช่สำหรับคุณ 🎯</h2>
+  <p class="section-desc">พิมพ์ชื่อร้าน ประเภทอาหาร หรือกรองตามที่ต้องการได้เลย</p>
+  <div class="search-box">
+    <input class="search-input" id="searchInput" type="text" placeholder="🔍 พิมพ์ชื่อร้าน หรือประเภทอาหาร...">
+    <button class="search-btn" onclick="doSearch()">ค้นหา</button>
+  </div>
+  <div class="filter-row" id="filterRow">
+    <button class="filter-pill active" onclick="setFilter('all',this)">🍽️ ทั้งหมด</button>
+    <button class="filter-pill" onclick="setFilter('ไทย',this)">🍛 ไทย</button>
+    <button class="filter-pill" onclick="setFilter('ญี่ปุ่น',this)">🍣 ญี่ปุ่น</button>
+    <button class="filter-pill" onclick="setFilter('เกาหลี',this)">🥩 เกาหลี</button>
+    <button class="filter-pill" onclick="setFilter('อิตาเลียน',this)">🍕 อิตาเลียน</button>
+    <button class="filter-pill" onclick="setFilter('ฟิวชัน',this)">✨ ฟิวชัน</button>
+    <button class="filter-pill" onclick="setFilter('ซีฟู้ด',this)">🦞 ซีฟู้ด</button>
+  </div>
+  <div class="search-results" id="searchResults"></div>
+</section>
+
+<!-- ASK AI -->
+<section id="ask">
+  <div class="section-chip" style="background:var(--pink-light);color:#d040a0;">🤖 ถาม AI</div>
+  <h2>ถามเกี่ยวกับ<br>ร้านอาหารได้เลย! 💬</h2>
+  <p class="section-desc">ถามอะไรก็ได้เกี่ยวกับร้านอาหารในย่านพร้อมพงษ์ AI จะตอบจากข้อมูลจริงที่วิเคราะห์ไว้</p>
+  <div class="chat-wrap">
+    <div class="quick-qs">
+      <button class="quick-q" onclick="sendQuick(this)">🏆 ร้านไหนดีที่สุด?</button>
+      <button class="quick-q" onclick="sendQuick(this)">💰 ร้านไหนราคาตรงงบ 300-500 บาท?</button>
+      <button class="quick-q" onclick="sendQuick(this)">👥 ร้านไหนรองรับ 10 คนได้?</button>
+      <button class="quick-q" onclick="sendQuick(this)">💼 ร้านไหนนั่งคุยงานได้ดีที่สุด?</button>
+      <button class="quick-q" onclick="sendQuick(this)">🍣 ร้านญี่ปุ่นที่ดีที่สุด?</button>
+      <button class="quick-q" onclick="sendQuick(this)">🚇 ร้านไหนใกล้ BTS ที่สุด?</button>
+    </div>
+    <div class="chat-messages" id="chatMessages">
+      <div class="msg ai">
+        <div class="msg-avatar">🤖</div>
+        <div class="msg-bubble">สวัสดีครับ! ผมคือ AI ที่วิเคราะห์ข้อมูลร้านอาหาร 37 ร้านในย่านพร้อมพงษ์/สุขุมวิทไว้แล้ว ถามอะไรได้เลยครับ เช่น "ร้านไหนดีที่สุด?" หรือ "อยากได้ร้านงบ 400 บาท คุยงานได้" 😊</div>
+      </div>
+    </div>
+    <div class="chat-input-row">
+      <input class="chat-input" id="chatInput" type="text" placeholder="พิมพ์คำถามเกี่ยวกับร้านอาหาร..." onkeydown="if(event.key==='Enter')sendChat()">
+      <button class="chat-send" id="chatSend" onclick="sendChat()">ส่ง 🚀</button>
+    </div>
+  </div>
+</section>
+
+<!-- INSIGHT -->
+<section id="insight">
+  <div class="section-chip" style="background:var(--mint-light);color:#20806a;">💡 08 — AI Insight</div>
+  <h2>สิ่งที่ค้นพบ<br>น่าสนใจมาก! 🔍</h2>
+  <p class="section-desc">ไม่ใช่แค่หาร้านอาหาร แต่ยังเจอ pattern น่าสนใจจากข้อมูลด้วย</p>
+  <div class="insight-cards">
+    <div class="insight-card">
+      <div class="insight-num" style="background:var(--yellow-light);color:#c08000;">💡</div>
+      <div class="insight-body">
+        <h3>คะแนนสูง ≠ ตรงโจทย์เสมอไป</h3>
+        <p>Top 3 ที่ 95 คะแนนแพ้ Supanniga (90 คะแนน) ในมิติเดียวที่สำคัญที่สุดคือ "ราคา" Scoring Model ให้น้ำหนักราคาแค่ 15/100 แต่ในความเป็นจริง งบคือ constraint ไม่ใช่ preference</p>
+      </div>
+    </div>
+    <div class="insight-card">
+      <div class="insight-num" style="background:var(--pink-light);color:#d040a0;">💸</div>
+      <div class="insight-body">
+        <h3>บรรยากาศ "คุยงานได้" มี price premium</h3>
+        <p>เกือบทุกร้านที่ work_friendly = ใช่ มีราคา mid-point เกิน 500 บาท ร้านในงบ 300–500 บาทที่คุยงานได้มีเพียง Supanniga และ ศรีตราด เท่านั้น</p>
+      </div>
+    </div>
+    <div class="insight-card">
+      <div class="insight-num" style="background:var(--sky-light);color:#2070c0;">🍱</div>
+      <div class="insight-body">
+        <h3>ร้านญี่ปุ่นครองลิสต์แต่ตอบโจทย์กลุ่มน้อย</h3>
+        <p>37 ร้านที่ผ่าน clean ส่วนใหญ่เป็นญี่ปุ่น แต่ส่วนมากเป็น omakase / ซูชิ ที่นั่งจำกัด ราคาสูง ร้านญี่ปุ่นใน Top 10 ได้จริงคือ format ที่รองรับกลุ่มได้ เช่น อิซาคายะ บุฟเฟต์ ร้านใน mall</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- FOOTER -->
+<footer>
+  <div class="footer-logo">🍜</div>
+  <h3>AI Food Assistant — พร้อมพงษ์</h3>
+  <p>สร้างด้วย Apify · Google Sheets · Claude AI · Make.com · HTML/CSS</p>
+  <p style="margin-top:6px;">✍️ Teerasak Chantawuttikul &nbsp;·&nbsp; 📅 8 มิถุนายน 2569</p>
+  <div class="footer-links">
+    <a href="https://docs.google.com/spreadsheets/d/1c50h-9X6zPyYItt_wGNtJKzegCQcynBFgoM7dKwDZJQ" target="_blank" class="footer-link">📊 Google Sheets</a>
+    <a href="https://apify.com/compass/crawler-google-places" target="_blank" class="footer-link">🕷️ Data Source</a>
+  </div>
+</footer>
+
+<script>
+// ===== RESTAURANT DATA =====
+const restaurants = [
+  { name:"Bangkok Heightz Rooftop", type:"ไทย", rating:4.8, reviews:2909, price:"500-900", group:"ใช่", work:"ใช่", bts:"ใช่", score:95, notes:"Rooftop ชั้น 39 วิวสวย บรรยากาศดีมาก" },
+  { name:"Napha Emsphere", type:"ไทย", rating:4.8, reviews:1029, price:"500-900", group:"ใช่", work:"ใช่", bts:"ใช่", score:95, notes:"อยู่ใน Emsphere สะดวกมาก" },
+  { name:"Terra Thonglor", type:"ญี่ปุ่น", rating:4.8, reviews:1103, price:"500-900", group:"ใช่", work:"ใช่", bts:"ใช่", score:95, notes:"อิซาคายะ บรรยากาศผ่อนคลาย" },
+  { name:"Supanniga Eating Room", type:"ไทย", rating:4.4, reviews:1729, price:"300-500", group:"ใช่", work:"ใช่", bts:"ใช่", score:90, notes:"ราคาตรงงบพอดี ทองหล่อ" },
+  { name:"BORNGA THAILAND", type:"เกาหลี", rating:4.8, reviews:4134, price:"400-700", group:"ใช่", work:"ไม่แน่ใจ", bts:"ใช่", score:89, notes:"เนื้อย่างเกาหลี อยู่ใน mall" },
+  { name:"KURATHAI SHOKUDO", type:"ญี่ปุ่น", rating:4.8, reviews:2027, price:"300-600", group:"ใช่", work:"ไม่แน่ใจ", bts:"ใช่", score:89, notes:"บุฟเฟต์ญี่ปุ่น ราคาดี" },
+  { name:"ครัวเจียงใหม่", type:"ไทย", rating:4.8, reviews:2766, price:"200-400", group:"ใช่", work:"ไม่แน่ใจ", bts:"ใช่", score:89, notes:"อาหารไทยเหนือ ราคาย่อมเยา" },
+  { name:"SUSHI SEKI EmQuartier", type:"ญี่ปุ่น", rating:4.8, reviews:4318, price:"500-1000", group:"ใช่", work:"ไม่แน่ใจ", bts:"ใช่", score:89, notes:"อยู่ใน EmQuartier รีวิวเยอะ" },
+  { name:"Jirakaan Restaurant", type:"ไทย", rating:4.8, reviews:1050, price:"400-700", group:"ใช่", work:"ใช่", bts:"ไม่แน่ใจ", score:85, notes:"บรรยากาศดี เหมาะกลุ่มและคุยงาน" },
+  { name:"CALM Bangkok", type:"ฟิวชัน", rating:4.8, reviews:756, price:"500-900", group:"ไม่แน่ใจ", work:"ใช่", bts:"ใช่", score:85, notes:"Bar & Grill บรรยากาศดี" },
+  { name:"Akira Back", type:"ฟิวชัน", rating:4.7, reviews:730, price:"700-1200", group:"ใช่", work:"ใช่", bts:"ใช่", score:82, notes:"ใน Marriott บรรยากาศหรูหรา" },
+  { name:"Masu Maki and Sushi Bar", type:"ญี่ปุ่น", rating:4.7, reviews:2526, price:"400-700", group:"ใช่", work:"ไม่แน่ใจ", bts:"ใช่", score:80, notes:"รีวิวเยอะ ที่นั่งเพียงพอ" },
+  { name:"ศรีตราด", type:"ไทย", rating:4.5, reviews:2551, price:"300-600", group:"ใช่", work:"ใช่", bts:"ใช่", score:78, notes:"อาหารไทยใต้ชื่อดัง" },
+  { name:"เพ็พพิน่า", type:"อิตาเลียน", rating:4.5, reviews:2493, price:"400-700", group:"ใช่", work:"ใช่", bts:"ใช่", score:78, notes:"พิซซ่าชื่อดัง รีวิวเยอะ" },
+  { name:"Ministry of Crab Bangkok", type:"ซีฟู้ด", rating:4.6, reviews:1025, price:"800-1500", group:"ใช่", work:"ใช่", bts:"ใช่", score:76, notes:"ซีฟู้ดชื่อดัง ราคาสูง" },
+  { name:"Enoteca Bangkok", type:"อิตาเลียน", rating:4.6, reviews:641, price:"500-900", group:"ไม่แน่ใจ", work:"ใช่", bts:"ใช่", score:75, notes:"Wine bar บรรยากาศดี" },
+  { name:"Rava Restaurant", type:"อิตาเลียน", rating:4.6, reviews:439, price:"500-900", group:"ไม่แน่ใจ", work:"ใช่", bts:"ใช่", score:74, notes:"บรรยากาศดี เหมาะคุยงาน" },
+  { name:"โคเบะทนเทกิ พร้อมพงษ์", type:"ญี่ปุ่น", rating:4.6, reviews:1933, price:"400-800", group:"ใช่", work:"ไม่แน่ใจ", bts:"ใช่", score:74, notes:"เนื้อย่างสไตล์ญี่ปุ่น" },
+  { name:"Miyagi", type:"ญี่ปุ่น", rating:4.6, reviews:1178, price:"400-700", group:"ใช่", work:"ไม่แน่ใจ", bts:"ใช่", score:73, notes:"ที่นั่งค่อนข้างเยอะ" },
+  { name:"Casa Lenzi Italian Restaurant", type:"อิตาเลียน", rating:4.8, reviews:326, price:"600-1000", group:"ไม่แน่ใจ", work:"ใช่", bts:"ใช่", score:72, notes:"ร้านหรูหรา บรรยากาศดี" },
+];
+
+let currentFilter = 'all';
+
+// ===== SEARCH =====
+function renderCards(data) {
+  const container = document.getElementById('searchResults');
+  if (!data.length) {
+    container.innerHTML = '<div class="no-results">😅 ไม่พบร้านที่ตรงกับที่ค้นหา ลองคำอื่นดูครับ</div>';
+    return;
+  }
+  container.innerHTML = data.map(r => `
+    <div class="result-card">
+      <div class="result-card-name">${r.name}</div>
+      <div class="result-card-tags">
+        <span class="tag-pill t-gray">${r.type}</span>
+        <span class="tag-pill ${r.score>=90?'t-green':'t-gray'}">⭐ ${r.score} คะแนน</span>
+      </div>
+      <div class="result-card-row"><span>Google Rating</span><span>${r.rating} ★ (${r.reviews.toLocaleString()} รีวิว)</span></div>
+      <div class="result-card-row"><span>ราคา/คน</span><span>฿${r.price}</span></div>
+      <div class="result-card-row"><span>รองรับกลุ่ม</span><span style="color:${r.group==='ใช่'?'#20906a':'#e05060'}">${r.group==='ใช่'?'✓ ใช่':'✗ ไม่แน่ใจ'}</span></div>
+      <div class="result-card-row"><span>คุยงานได้</span><span style="color:${r.work==='ใช่'?'#20906a':'#c07020'}">${r.work}</span></div>
+      <div class="result-card-row"><span>ใกล้ BTS</span><span style="color:${r.bts==='ใช่'?'#20906a':'#c07020'}">${r.bts}</span></div>
+      ${r.notes?`<div style="font-size:11px;color:var(--muted);margin-top:8px;padding-top:8px;border-top:1px solid var(--border);">💡 ${r.notes}</div>`:''}
+    </div>
+  `).join('');
+}
+
+function doSearch() {
+  const q = document.getElementById('searchInput').value.toLowerCase();
+  let data = restaurants;
+  if (currentFilter !== 'all') data = data.filter(r => r.type === currentFilter);
+  if (q) data = data.filter(r => r.name.toLowerCase().includes(q) || r.type.toLowerCase().includes(q) || r.notes.toLowerCase().includes(q));
+  renderCards(data);
+}
+
+function setFilter(type, btn) {
+  currentFilter = type;
+  document.querySelectorAll('.filter-pill').forEach(p => p.classList.remove('active'));
+  btn.classList.add('active');
+  document.getElementById('searchInput').value = '';
+  let data = type === 'all' ? restaurants : restaurants.filter(r => r.type === type);
+  renderCards(data);
+}
+
+document.getElementById('searchInput').addEventListener('keyup', doSearch);
+renderCards(restaurants);
+
+// ===== AI CHAT =====
+// ===== SMART AI CHAT ENGINE (Rule-based, ไม่ต้องเรียก API) =====
+const aiKnowledge = {
+  top3: `🏆 **Top 3 ร้านแนะนำ** จากการวิเคราะห์ 37 ร้าน:\n\n🥇 **Bangkok Heightz Rooftop** (95 คะแนน) — ไทย · ชั้น 39 · 500-900 บาท/คน · บรรยากาศ wow สุดๆ ใกล้ BTS\n🥈 **Napha Emsphere** (95 คะแนน) — ไทย · อยู่ใน Emsphere · 500-900 บาท/คน · BTS โดยตรง สะดวกสุด\n🥉 **Terra Thonglor** (95 คะแนน) — ญี่ปุ่น/อิซาคายะ · 500-900 บาท/คน · บรรยากาศผ่อนคลาย เหมาะคุยงาน`,
+  budget: `💰 **ร้านที่ตรงงบ 300-500 บาท/คนพอดี:**\n\n✅ **Supanniga Eating Room** (90 คะแนน) — ไทย · 300-500 บาท · คุยงานได้ · ใกล้ BTS ทองหล่อ\n✅ **KURATHAI SHOKUDO** (89 คะแนน) — ญี่ปุ่น/บุฟเฟต์ · 300-600 บาท · รองรับกลุ่มใหญ่\n✅ **ครัวเจียงใหม่** (89 คะแนน) — ไทยเหนือ · 200-400 บาท · รีวิวเยอะ ราคาถูกสุด\n\n💡 AI แนะนำ: Supanniga ดีที่สุดในกลุ่มนี้ครับ`,
+  group: `👥 **ร้านที่รองรับกลุ่ม 8-12 คนได้ชัวร์:**\n\n✅ Bangkok Heightz Rooftop — โต๊ะใหญ่ Rooftop\n✅ Napha Emsphere — อยู่ใน mall ที่นั่งเยอะ\n✅ Terra Thonglor — อิซาคายะ รองรับกลุ่ม\n✅ BORNGA THAILAND — เกาหลี อยู่ใน mall\n✅ SUSHI SEKI EmQuartier — ใน EmQuartier ที่นั่งพอ\n✅ Supanniga Eating Room — ไทย ทองหล่อ`,
+  work: `💼 **ร้านที่นั่งคุยงานได้ดีที่สุด:**\n\n🥇 **Bangkok Heightz Rooftop** — วิว+บรรยากาศ ทำให้ประชุมสนุก\n🥈 **Napha Emsphere** — เงียบสงบ บรรยากาศดี\n🥉 **Supanniga Eating Room** — บรรยากาศไทยประณีต เสียงไม่ดัง\n🍶 **Terra Thonglor** — อิซาคายะ เหมาะคุยงานแบบ informal\n🍹 **CALM Bangkok** — Bar & Grill บรรยากาศดี`,
+  japanese: `🍣 **ร้านญี่ปุ่นที่ดีที่สุดในย่านนี้:**\n\n🥇 **Terra Thonglor** (95 คะแนน) — อิซาคายะ เหมาะกลุ่ม บรรยากาศดี\n🥈 **KURATHAI SHOKUDO** (89 คะแนน) — บุฟเฟต์ญี่ปุ่น ราคาดี รองรับกลุ่ม\n🥉 **SUSHI SEKI EmQuartier** (89 คะแนน) — ซูชิชื่อดัง รีวิวกว่า 4,000\n🍱 **BORNGA THAILAND** — เนื้อย่างเกาหลี (ไม่ใช่ญี่ปุ่น แต่คล้ายกัน)\n\n⚠️ หมายเหตุ: ร้าน Omakase ส่วนใหญ่ในย่านนี้ไม่เหมาะกลุ่มใหญ่ครับ`,
+  bts: `🚇 **ร้านที่ใกล้ BTS พร้อมพงษ์ที่สุด:**\n\n✅ **Napha Emsphere** — เดิน BTS เข้าได้โดยตรง\n✅ **SUSHI SEKI EmQuartier** — ใน EmQuartier ติด BTS\n✅ **Bangkok Heightz Rooftop** — ใกล้ BTS มากครับ\n✅ **BORNGA THAILAND** — ซ.สุขุมวิท 39 ใกล้ BTS\n✅ **KURATHAI SHOKUDO** — ซ.สุขุมวิท 35 เดินได้\n\n💡 ใกล้สุดคือ Napha Emsphere เพราะเดินตรงจาก BTS เข้า mall เลยครับ`,
+  recommend: `🤖 **AI แนะนำตรงๆ:**\n\nถ้าอยากได้ **บรรยากาศดีที่สุด** → Bangkok Heightz Rooftop 🌆\nถ้าอยากได้ **สะดวกที่สุด** → Napha Emsphere 🛍️\nถ้าอยากได้ **ราคาตรงงบ** → Supanniga Eating Room 💚\nถ้าอยากได้ **บุฟเฟต์ญี่ปุ่น** → KURATHAI SHOKUDO 🍱\nถ้าอยากได้ **เกาหลี** → BORNGA THAILAND 🥩\nถ้าอยากได้ **อิตาเลียน** → เพ็พพิน่า หรือ Enoteca Bangkok 🍕`,
+  korean: `🥩 **ร้านเกาหลีในย่านนี้:**\n\n🥇 **BORNGA THAILAND** (89 คะแนน) — เนื้อย่างเกาหลีชื่อดัง · อยู่ใน mall · รีวิวกว่า 4,000 · รองรับกลุ่มใหญ่ · ใกล้ BTS\n\nมีแค่ร้านเดียวที่ผ่านเกณฑ์ครับ แต่คะแนนดีมาก เป็นตัวเลือกที่แนะนำสำหรับทีมที่อยากกินเกาหลีครับ`,
+  italian: `🍕 **ร้านอิตาเลียนในย่านนี้:**\n\n🥇 **เพ็พพิน่า** (78 คะแนน) — พิซซ่าชื่อดัง · รีวิวกว่า 2,400 · เหมาะกลุ่ม\n🥈 **Enoteca Bangkok** (75 คะแนน) — Wine bar · บรรยากาศดี · เหมาะคุยงาน\n🥉 **Rava Restaurant** (74 คะแนน) — อาหารอิตาเลียน · บรรยากาศดี`,
+  seafood: `🦞 **ร้านซีฟู้ดในย่านนี้:**\n\n🥇 **Ministry of Crab Bangkok** (76 คะแนน) — ซีฟู้ดชื่อดังระดับนานาชาติ · ราคา 800-1500 บาท/คน · ต้องจองล่วงหน้า\n\n⚠️ ราคาเกินงบที่กำหนดนะครับ แต่ถ้ายืดงบได้แนะนำร้านนี้เลยครับ`,
+  cheap: `💸 **ร้านราคาถูกที่สุดในลิสต์:**\n\n🥇 **ครัวเจียงใหม่** — 200-400 บาท/คน ไทยเหนือ รีวิวเยอะ\n🥈 **อรรถรส** — 200-400 บาท/คน อาหารไทย\n🥉 **อรนุช** — 200-400 บาท/คน อาหารไทย\n\n💡 ครัวเจียงใหม่แนะนำสุดครับ รีวิวเยอะ และมีที่นั่งเพียงพอสำหรับกลุ่ม`,
+  rooftop: `🌆 **ร้าน Rooftop / วิวสวย:**\n\n🥇 **Bangkok Heightz Rooftop** (95 คะแนน) — ชั้น 39 · วิวกรุงเทพฯ 360° · บรรยากาศสุดพิเศษ · รีวิวกว่า 2,900\n\nเป็นร้าน Rooftop เดียวในลิสต์ครับ ถ้าอยากได้ wow factor นี่คือคำตอบเลย 🎯`,
+  default: `🤔 ขอโทษครับ ไม่แน่ใจว่าถามเรื่องอะไร ลองถามใหม่ได้เลยนะครับ เช่น:\n\n💬 "ร้านไหนดีที่สุด?"\n💬 "ร้านไหนราคาตรงงบ 300-500 บาท?"\n💬 "ร้านญี่ปุ่นที่เหมาะกลุ่มใหญ่?"\n💬 "ร้านไหนนั่งคุยงานได้?"\n💬 "ร้านไหนใกล้ BTS สุด?"`
+};
+
+function getAIReply(text) {
+  const q = text.toLowerCase();
+  // Top / ดีที่สุด / แนะนำ
+  if (q.includes('ดีที่สุด') || q.includes('top') || q.includes('อันดับ') || q.includes('แนะนำเลย') || q.includes('สุดยอด')) return aiKnowledge.top3;
+  // งบ / ราคา / ถูก / ประหยัด
+  if (q.includes('งบ') && (q.includes('300') || q.includes('400') || q.includes('500'))) return aiKnowledge.budget;
+  if (q.includes('ราคาถูก') || q.includes('ประหยัด') || q.includes('ถูกที่สุด')) return aiKnowledge.cheap;
+  if (q.includes('ราคา') || q.includes('งบ')) return aiKnowledge.budget;
+  // กลุ่ม / หลายคน
+  if (q.includes('กลุ่ม') || q.includes('หลายคน') || q.includes('10 คน') || q.includes('12 คน') || q.includes('8 คน') || q.includes('รองรับ')) return aiKnowledge.group;
+  // คุยงาน / ประชุม / work
+  if (q.includes('คุยงาน') || q.includes('ประชุม') || q.includes('work') || q.includes('นั่งคุย')) return aiKnowledge.work;
+  // ญี่ปุ่น
+  if (q.includes('ญี่ปุ่น') || q.includes('ซูชิ') || q.includes('อิซาคายะ') || q.includes('ราเมน') || q.includes('อุด้ง')) return aiKnowledge.japanese;
+  // เกาหลี
+  if (q.includes('เกาหลี') || q.includes('บาร์บีคิว') || q.includes('บีบิม')) return aiKnowledge.korean;
+  // อิตาเลียน / พิซซ่า
+  if (q.includes('อิตาเลียน') || q.includes('พิซซ่า') || q.includes('พาสต้า')) return aiKnowledge.italian;
+  // ซีฟู้ด / ทะเล
+  if (q.includes('ซีฟู้ด') || q.includes('ทะเล') || q.includes('กุ้ง') || q.includes('ปู')) return aiKnowledge.seafood;
+  // BTS / รถไฟ / เดินทาง
+  if (q.includes('bts') || q.includes('รถไฟ') || q.includes('ใกล้') || q.includes('เดินทาง')) return aiKnowledge.bts;
+  // Rooftop / วิว
+  if (q.includes('rooftop') || q.includes('วิว') || q.includes('ดาดฟ้า')) return aiKnowledge.rooftop;
+  // แนะนำ / เลือก / ไหนดี
+  if (q.includes('แนะนำ') || q.includes('เลือก') || q.includes('ไหนดี') || q.includes('ช่วย')) return aiKnowledge.recommend;
+  return aiKnowledge.default;
+}
+
+function addMsg(role, text) {
+  const box = document.getElementById('chatMessages');
+  const div = document.createElement('div');
+  div.className = `msg ${role}`;
+  // แปลง **bold** และ \n เป็น HTML
+  const html = text.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>').replace(/\n/g, '<br>');
+  div.innerHTML = role === 'user'
+    ? `<div class="msg-bubble">${html}</div><div class="msg-avatar">👤</div>`
+    : `<div class="msg-avatar">🤖</div><div class="msg-bubble">${html}</div>`;
+  box.appendChild(div);
+  box.scrollTop = box.scrollHeight;
+}
+
+function showTyping() {
+  const box = document.getElementById('chatMessages');
+  const div = document.createElement('div');
+  div.className = 'msg ai'; div.id = 'typing-indicator';
+  div.innerHTML = `<div class="msg-avatar">🤖</div><div class="msg-bubble"><div class="typing"><span></span><span></span><span></span></div></div>`;
+  box.appendChild(div);
+  box.scrollTop = box.scrollHeight;
+}
+
+function removeTyping() {
+  const t = document.getElementById('typing-indicator');
+  if (t) t.remove();
+}
+
+function sendChat() {
+  const input = document.getElementById('chatInput');
+  const btn = document.getElementById('chatSend');
+  const text = input.value.trim();
+  if (!text) return;
+
+  addMsg('user', text);
+  input.value = '';
+  btn.disabled = true;
+  showTyping();
+
+  // จำลอง delay เหมือน AI กำลังคิด
+  setTimeout(() => {
+    removeTyping();
+    const reply = getAIReply(text);
+    addMsg('ai', reply);
+    btn.disabled = false;
+    input.focus();
+  }, 800 + Math.random() * 600);
+}
+
+function sendQuick(btn) {
+  document.getElementById('chatInput').value = btn.textContent.replace(/^[^\s]+\s/, '');
+  sendChat();
+}
+</script>
+</body>
+</html>
